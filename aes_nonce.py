@@ -9,7 +9,7 @@ from hashlib import sha384
 from Crypto.Cipher import AES
 
 IV_KEY = unhexlify("00000000000000000000000000000000")
-
+# Default IV key for AES-CBC
 
 def hexswap(input_hex: str):
     # Aka endian swap

@@ -9,7 +9,7 @@ from hashlib import sha384
 from Crypto.Cipher import AES
 
 IV_KEY = unhexlify("00000000000000000000000000000000")
-
+# Default IV key for AES-CBC
 
 def hexswap(input_hex: str):
     # Aka endian swap
@@ -30,6 +30,7 @@ def parse_key(key: bytes):
 
 
 def entangle_nonce(key, nonce):
+    # Encrypt the generator with AES-128-CBC with the AES key, then take a sha384 hash and substring to 64 characters to gives us the entangled nonce
     AES_CFG = AES.new(unhexlify(key), AES.MODE_CBC, IV_KEY)
     entangled_nonce = AES_CFG.encrypt(unhexlify(nonce))
     print("Encrypted Generator:", hexlify(entangled_nonce).decode())

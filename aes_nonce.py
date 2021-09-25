@@ -26,7 +26,7 @@ def parse_nonce(nonce: str):
 
 def parse_key(key: bytes):
     # Split by 8 (4 bytes) and hexswap each segment, then join back together
-    return "".join([hexswap(key[i : i + 8].decode()) for i in range(0, len(key), 8)])
+    return "".join([hexswap(hexswap(key[i : i + 8].decode())) for i in range(0, len(key), 8)])
 
 
 def entangle_nonce(key, nonce):
@@ -42,5 +42,6 @@ if __name__ == "__main__":
     key = b"72deca3fb43507da4882a5a46a991c37" # dumped from dimentio
     if len(sys.argv) > 2 and len(sys.argv[2]) == 32:
         key = hexlify(int(sys.argv[2], 16).to_bytes(16, 'big')) # user specified key dumped from dimentio
+        # print(parse_key(key))
     entangled_nonce = entangle_nonce(parse_key(key), parse_nonce(nonce))
     print("Entangled Nonce:", entangled_nonce.decode())

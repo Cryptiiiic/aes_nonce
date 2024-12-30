@@ -5,6 +5,7 @@
 import sys
 from binascii import hexlify, unhexlify
 from hashlib import sha384
+from pathlib import Path
 
 from Crypto.Cipher import AES
 
@@ -19,9 +20,9 @@ def hexswap(input_hex: str):
     return hex_str
 
 
-def parse_nonce(nonce: str):
+def parse_seed(seed: str):
     # Hexswap then pad with 0s to 32
-    return hexswap(nonce[:16]).encode().zfill(32)
+    return unhexlify(seed)
 
 
 def parse_key(key: bytes):
@@ -29,18 +30,18 @@ def parse_key(key: bytes):
     return "".join([hexswap(hexswap(key[i : i + 8].decode())) for i in range(0, len(key), 8)])
 
 
-def entangle_nonce(key, nonce):
+def entangle_nonce(key, seed):
     # Encrypt the generator with AES-128-CBC with the AES key, then take a sha384 hash and substring to 64 characters to gives us the entangled nonce
     AES_CFG = AES.new(unhexlify(key), AES.MODE_CBC, IV_KEY)
-    entangled_nonce = AES_CFG.encrypt(unhexlify(nonce))
-    print("Encrypted Generator:", hexlify(entangled_nonce).decode())
+    entangled_nonce = AES_CFG.encrypt(seed)
+    print("Encrypted Seed:", hexlify(entangled_nonce).decode())
     return hexlify(sha384(entangled_nonce).digest())[:-32]
 
 def main():
-    nonce = sys.argv[2] # user specified
+    seed = sys.argv[2]
     if len(sys.argv) > 2 and len(sys.argv[1]) == 32:
-        key = hexlify(int(sys.argv[1], 16).to_bytes(16, 'big')) # user specified key dumped from x8A4 -k 0x8A3
-        entangled_nonce = entangle_nonce(parse_key(key), parse_nonce(nonce)).decode()
+        key = parse_key(hexlify(int(sys.argv[1], 16).to_bytes(16, 'big'))) # user specified key dumped from x8A4 -k 0x8A4
+        entangled_nonce = entangle_nonce(key, parse_seed(seed)).decode()
         print(f"Entangled Nonce: {entangled_nonce}")
 
 if __name__ == "__main__":

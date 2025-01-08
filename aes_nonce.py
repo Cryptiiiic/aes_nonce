@@ -37,11 +37,16 @@ def entangle_nonce(key, nonce):
     return hexlify(sha384(entangled_nonce).digest())[:-32]
 
 def main():
-    nonce = sys.argv[2] # user specified
-    if len(sys.argv) > 2 and len(sys.argv[1]) == 32:
-        key = hexlify(int(sys.argv[1], 16).to_bytes(16, 'big')) # user specified key dumped from x8A4 -k 0x8A3
-        entangled_nonce = entangle_nonce(parse_key(key), parse_nonce(nonce)).decode()
-        print(f"Entangled Nonce: {entangled_nonce}")
+    try:
+        nonce = sys.argv[2] # user specified
+        if len(sys.argv) > 2 and len(sys.argv[1]) == 32:
+            key = hexlify(int(sys.argv[1], 16).to_bytes(16, 'big')) # user specified key dumped from x8A4 -k 0x8A3
+            entangled_nonce = entangle_nonce(parse_key(key), parse_nonce(nonce)).decode()
+            print(f"Entangled Nonce: {entangled_nonce}")
+        else:
+            print("Error: Invalid input, check that '0x' is stripped. Or check key/nonce!")
+    except:
+        print(f"Error: Expected 2 arguments, got {(len(sys.argv)-1)}")
 
 if __name__ == "__main__":
     main()
